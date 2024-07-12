@@ -221,20 +221,15 @@ local lsp_flags = {
 }
 
 local nvim_lsp = require("lspconfig")
-local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-require('lspconfig')['rnix'].setup{
-    on_attach = on_attach,
-    flags = lsp_flags,
-    capabilities = capabilities,
-}
 require('lspconfig')['vimls'].setup{
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
 }
 
-require'lspconfig'.sumneko_lua.setup({
+require'lspconfig'.lua_ls.setup({
     on_attach = on_attach,
     flags = {
         debounce_text_changes = 150,
@@ -304,9 +299,8 @@ require("lualine").setup({
         theme = "kanagawa",
     },
 })
-require("kanagawa").setup({
-    overrides = {},
-})
+-- require("kanagawa").setup({
+-- })
 
 -- setup must be called before loading
 vim.cmd("colorscheme kanagawa")

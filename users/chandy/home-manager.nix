@@ -382,7 +382,7 @@ in {
 
     extraPackages = with pkgs; [
       # Language server packages (executables)
-      sumneko-lua-language-server
+      lua-language-server
       nodePackages.vim-language-server
       stylua
       nixfmt
