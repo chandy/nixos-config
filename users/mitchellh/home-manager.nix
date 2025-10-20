@@ -42,6 +42,12 @@ in {
   # to use the old state version.
   home.stateVersion = "18.09";
 
+  # Disabled for now since we mismatch our versions. See flake.nix for details.
+  home.enableNixpkgsReleaseCheck = false;
+
+  # We manage our own Nushell config via Chezmoi
+  home.shell.enableNushellIntegration = false;
+
   xdg.enable = true;
 
   #---------------------------------------------------------------------
@@ -55,7 +61,7 @@ in {
     pkgs._1password-cli
     pkgs.asciinema
     pkgs.bat
-    pkgs.claude-code
+    pkgs.chezmoi
     pkgs.eza
     pkgs.fd
     pkgs.fzf
@@ -69,6 +75,9 @@ in {
 
     pkgs.gopls
     pkgs.zigpkgs."0.14.0"
+
+    pkgs.claude-code
+    pkgs.codex
 
     # Node is required for Copilot.vim
     pkgs.nodejs
@@ -97,6 +106,7 @@ in {
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
 
+    AMP_API_KEY = "op://Private/Amp_API/credential";
     OPENAI_API_KEY = "op://Private/OpenAPI_Personal/credential";
   } // (if isDarwin then {
     # See: https://github.com/NixOS/nixpkgs/issues/390751
@@ -110,17 +120,7 @@ in {
 
   xdg.configFile = {
     "i3/config".text = builtins.readFile ./i3;
-    "jj/config.toml".source = ./jujutsu.toml;
     "rofi/config.rasi".text = builtins.readFile ./rofi;
-
-    # tree-sitter parsers
-    "nvim/parser/proto.so".source = "${pkgs.tree-sitter-proto}/parser";
-    "nvim/queries/proto/folds.scm".source =
-      "${sources.tree-sitter-proto}/queries/folds.scm";
-    "nvim/queries/proto/highlights.scm".source =
-      "${sources.tree-sitter-proto}/queries/highlights.scm";
-    "nvim/queries/proto/textobjects.scm".source =
-      ./textobjects.scm;
   } // (if isDarwin then {
     # Rectangle.app. This has to be imported manually using the app.
     "rectangle/RectangleConfig.json".text = builtins.readFile ./RectangleConfig.json;
@@ -161,16 +161,16 @@ in {
     enable = true;
     shellAliases = shellAliases;
     interactiveShellInit = lib.strings.concatStrings (lib.strings.intersperse "\n" ([
-      "source ${sources.theme-bobthefish}/functions/fish_prompt.fish"
-      "source ${sources.theme-bobthefish}/functions/fish_right_prompt.fish"
-      "source ${sources.theme-bobthefish}/functions/fish_title.fish"
+      "source ${inputs.theme-bobthefish}/functions/fish_prompt.fish"
+      "source ${inputs.theme-bobthefish}/functions/fish_right_prompt.fish"
+      "source ${inputs.theme-bobthefish}/functions/fish_title.fish"
       (builtins.readFile ./config.fish)
       "set -g SHELL ${pkgs.fish}/bin/fish"
     ]));
 
     plugins = map (n: {
       name = n;
-      src  = sources.${n};
+      src  = inputs.${n};
     }) [
       "fish-fzf"
       "fish-foreign-env"
@@ -215,27 +215,6 @@ in {
     # the time of writing this.
   };
 
-  programs.tmux = {
-    enable = true;
-    terminal = "xterm-256color";
-    shortcut = "l";
-    secureSocket = false;
-    mouse = true;
-
-    extraConfig = ''
-      set -ga terminal-overrides ",*256col*:Tc"
-
-      set -g @dracula-show-battery false
-      set -g @dracula-show-network false
-      set -g @dracula-show-weather false
-
-      bind -n C-k send-keys "clear"\; send-keys "Enter"
-
-      run-shell ${sources.tmux-pain-control}/pain_control.tmux
-      run-shell ${sources.tmux-dracula}/dracula.tmux
-    '';
-  };
-
   programs.alacritty = {
     enable = !isWSL;
 
@@ -278,78 +257,18 @@ in {
   programs.neovim = {
     enable = true;
     package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
-
-    withPython3 = true;
-
-    plugins = with pkgs; [
-      customVim.vim-copilot
-      customVim.vim-cue
-      customVim.vim-fish
-      customVim.vim-glsl
-      customVim.vim-misc
-      customVim.vim-pgsql
-      customVim.vim-tla
-      customVim.vim-zig
-      customVim.pigeon
-      customVim.AfterColors
-
-      customVim.vim-nord
-      customVim.nvim-codecompanion
-      customVim.nvim-comment
-      customVim.nvim-conform
-      customVim.nvim-dressing
-      customVim.nvim-gitsigns
-      customVim.nvim-lualine
-      customVim.nvim-lspconfig
-      customVim.nvim-nui
-      customVim.nvim-plenary # required for telescope
-      customVim.nvim-render-markdown
-      customVim.nvim-telescope
-      customVim.nvim-treesitter-context
-
-      vimPlugins.vim-eunuch
-      vimPlugins.vim-markdown
-      vimPlugins.vim-nix
-      vimPlugins.typescript-vim
-      vimPlugins.nvim-treesitter-parsers.elixir
-      vimPlugins.nvim-treesitter
-      vimPlugins.nvim-treesitter.withAllGrammars
-    ] ++ (lib.optionals (!isWSL) [
-      # This is causing a segfaulting while building our installer
-      # for WSL so just disable it for now. This is a pretty
-      # unimportant plugin anyway.
-      customVim.nvim-web-devicons
-    ]);
-
-    extraConfig = (import ./vim-config.nix) { inherit sources; };
   };
 
   programs.atuin = {
     enable = true;
-    enableFishIntegration = true;
-    enableNushellIntegration = true;
-    settings = {
-      show_tabs = false;
-      style = "compact";
-    };
   };
 
   programs.nushell = {
     enable = true;
-    configFile.source = ./config.nu;
-    shellAliases = shellAliases;
-
-    # This is appended at the end of the config file and we need to do
-    # this to override OMP's transient prompt command.
-    extraConfig = ''
-      $env.TRANSIENT_PROMPT_COMMAND = null
-    '';
   };
 
   programs.oh-my-posh = {
     enable = true;
-    enableNushellIntegration = true;
-    settings = builtins.fromJSON (builtins.readFile ./omp.json);
   };
 
   services.gpg-agent = {

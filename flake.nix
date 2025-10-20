@@ -13,6 +13,11 @@
     # We use the unstable nixpkgs repo for some packages.
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
+    # Master nixpkgs is used for really bleeding edge packages. Warning
+    # that this is extremely unstable and shouldn't be relied on. Its
+    # mostly for testing.
+    nixpkgs-master.url = "github:nixos/nixpkgs";
+
     # Build a custom WSL installer
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
     nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
@@ -22,7 +27,10 @@
     nix-snapd.inputs.nixpkgs.follows = "nixpkgs";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      # We need to use nightly home-manager because it contains this
+      # fix we need for nushell nightly:
+      # https://github.com/nix-community/home-manager/commit/a69ebd97025969679de9f930958accbe39b4c705
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -43,34 +51,12 @@
     zig.url = "github:mitchellh/zig-overlay";
 
     # Non-flakes
-    nvim-codecompanion.url = "github:olimorris/codecompanion.nvim";
-    nvim-codecompanion.flake = false;
-    nvim-conform.url = "github:stevearc/conform.nvim/v9.0.0";
-    nvim-conform.flake = false;
-    nvim-dressing.url = "github:stevearc/dressing.nvim";
-    nvim-dressing.flake = false;
-    nvim-gitsigns.url = "github:lewis6991/gitsigns.nvim/v1.0.2";
-    nvim-gitsigns.flake = false;
-    nvim-lspconfig.url = "github:neovim/nvim-lspconfig";
-    nvim-lspconfig.flake = false;
-    nvim-lualine.url ="github:nvim-lualine/lualine.nvim";
-    nvim-lualine.flake = false;
-    nvim-nui.url = "github:MunifTanjim/nui.nvim";
-    nvim-nui.flake = false;
-    nvim-plenary.url = "github:nvim-lua/plenary.nvim";
-    nvim-plenary.flake = false;
-    nvim-render-markdown.url = "github:MeanderingProgrammer/render-markdown.nvim";
-    nvim-render-markdown.flake = false;
-    nvim-telescope.url = "github:nvim-telescope/telescope.nvim/0.1.8";
-    nvim-telescope.flake = false;
-    nvim-treesitter-context.url = "github:nvim-treesitter/nvim-treesitter-context";
-    nvim-treesitter-context.flake = false;
-    nvim-web-devicons.url = "github:nvim-tree/nvim-web-devicons";
-    nvim-web-devicons.flake = false;
-    vim-copilot.url = "github:github/copilot.vim/v1.48.0";
-    vim-copilot.flake = false;
-    vim-misc.url = "github:mitchellh/vim-misc";
-    vim-misc.flake = false;
+    theme-bobthefish.url = "github:oh-my-fish/theme-bobthefish/e3b4d4eafc23516e35f162686f08a42edf844e40";
+    theme-bobthefish.flake = false;
+    fish-fzf.url = "github:jethrokuan/fzf/24f4739fc1dffafcc0da3ccfbbd14d9c7d31827a";
+    fish-fzf.flake = false;
+    fish-foreign-env.url = "github:oh-my-fish/plugin-foreign-env/dddd9213272a0ab848d474d0cbde12ad034e65bc";
+    fish-foreign-env.flake = false;
   };
 
   outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs: let
