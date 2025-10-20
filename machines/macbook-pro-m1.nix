@@ -10,10 +10,6 @@
 
   # Keep in async with vm-shared.nix. (todo: pull this out into a file)
   nix = {
-    # We use the determinate-nix installer which manages Nix for us,
-    # so we don't want nix-darwin to do it.
-    enable = false;
-
     # We need to enable flakes
     extraOptions = ''
       experimental-features = nix-command flakes
@@ -24,7 +20,7 @@
     # Enable the Linux builder so we can run Linux builds on our Mac.
     # This can be debugged by running `sudo ssh linux-builder`
     linux-builder = {
-      enable = false;
+      enable = true;
       ephemeral = true;
       maxJobs = 4;
       config = ({ pkgs, ... }: {

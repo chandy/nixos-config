@@ -20,5 +20,4 @@ if (is-terminal --stdin) {
 }
 
 # Override some commands to use 1password
-alias amp = op run -- amp
 alias codex = op run -- codex

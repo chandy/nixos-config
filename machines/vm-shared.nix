@@ -1,4 +1,4 @@
-{ config, pkgs, lib, currentSystem, currentSystemName, ... }:
+{ config, pkgs, lib, currentSystem, currentSystemName,... }:
 
 {
   imports = [
@@ -100,6 +100,7 @@
     cachix
     gnumake
     killall
+    niv
     xclip
 
     # For hypervisors that support auto-resizing, this script forces it.

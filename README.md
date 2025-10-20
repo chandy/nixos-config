@@ -63,21 +63,23 @@ I also use this VM on a MacBook Pro (to be fair, it is maxed out on specs),
 and I have no issues whatsoever.
 
 **Does this work with Apple Silicon Macs?** Yes, I use VMware Fusion
-but others have used my configurations successfully with Parallels or UTM.
-Folder syncing, clipboards, and graphics acceleration all work. I've been
-using an Apple Silicon Mac full time since Nov 2021 with this setup.
+but my configurations also work for Parallels and UTM. Folder syncing,
+clipboards, and graphics acceleration all work. I've been using an
+Apple Silicon Mac full time since Nov 2021 with this setup.
 
 **Does this work on Windows?** Yes, I've tested this setup with both
 Hyper-V and VMware Workstation Pro and it works great in either case.
 
 ## Setup (VM)
 
-Video: <https://www.youtube.com/watch?v=ubDMLoWz76U>
+Video: https://www.youtube.com/watch?v=ubDMLoWz76U
 
 **Note:** This setup guide will cover VMware Fusion because that is the
-hypervisor I use day to day. Others have reported getting my configurations
-working with Parallels or UTM but I don't maintain the changes necessary for
-that.
+hypervisor I use day to day. The configurations in this repository also
+work with UTM (see `vm-aarch64-utm`) and Parallels (see `vm-aarch64-prl`) but
+I'm not using that full time so they may break from time to time. I've also
+successfully set up this environment on Windows with VMware Workstation and
+Hyper-V.
 
 You can download the NixOS ISO from the
 [official NixOS download page](https://nixos.org/download.html#nixos-iso).
@@ -87,14 +89,14 @@ Create a VMware Fusion VM with the following settings. My configurations
 are made for VMware Fusion exclusively currently and you will have issues
 on other virtualization solutions without minor changes.
 
-* ISO: NixOS 25.05 or later.
-* Disk: SATA 150 GB+
-* CPU/Memory: I give at least half my cores and half my RAM, as much as you can.
-* Graphics: Full acceleration, full resolution, maximum graphics RAM.
-* Network: Shared with my Mac.
-* Remove sound card, remove video camera, remove printer.
-* Profile: Disable almost all keybindings
-* Boot Mode: UEFI
+  * ISO: NixOS 23.05 or later.
+  * Disk: SATA 150 GB+
+  * CPU/Memory: I give at least half my cores and half my RAM, as much as you can.
+  * Graphics: Full acceleration, full resolution, maximum graphics RAM.
+  * Network: Shared with my Mac.
+  * Remove sound card, remove video camera, remove printer.
+  * Profile: Disable almost all keybindings
+  * Boot Mode: UEFI
 
 Boot the VM, and using the graphical console, change the root password to "root":
 
@@ -120,7 +122,7 @@ Run `ifconfig` and get the IP address of the first device. It is probably
 set this to the `NIXADDR` env var:
 
 ```
-export NIXADDR=<VM ip address>
+$ export NIXADDR=<VM ip address>
 ```
 
 The Makefile assumes an Intel processor by default. If you are using an
@@ -128,7 +130,7 @@ ARM-based processor (M1, etc.), you must change `NIXNAME` so that the ARM-based
 configuration is used:
 
 ```
-export NIXNAME=vm-aarch64
+$ export NIXNAME=vm-aarch64
 ```
 
 **Other Hypervisors:** If you are using Parallels, use `vm-aarch64-prl`.
@@ -141,14 +143,14 @@ but will not setup any other configurations yet. This prepares the VM for
 any NixOS customization:
 
 ```
-make vm/bootstrap0
+$ make vm/bootstrap0
 ```
 
 After the VM reboots, run the full bootstrap, this will finalize the
 NixOS customization using this configuration:
 
 ```
-make vm/bootstrap
+$ make vm/bootstrap
 ```
 
 You should have a graphical functioning dev VM.
@@ -217,3 +219,10 @@ $ wsl -s nixos
 
 After the `wsl -d` command, you should be dropped into the Nix environment.
 _Voila!_
+
+## FAQ
+
+### Why do you still use `niv`?
+
+I am still transitioning into a fully flaked setup. During this transition
+(which is indefinite, I'm in no rush), I'm using both.

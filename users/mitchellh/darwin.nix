@@ -1,14 +1,16 @@
 { inputs, pkgs, ... }:
 
 {
+  nixpkgs.overlays = import ../../lib/overlays.nix ++ [
+    (import ./vim.nix { inherit inputs; })
+  ];
+
   homebrew = {
     enable = true;
     casks  = [
       "1password"
-      "claude"
       "cleanshot"
       "discord"
-      "fantastical"
       "google-chrome"
       "hammerspoon"
       "imageoptim"
@@ -19,10 +21,6 @@
       "screenflow"
       "slack"
       "spotify"
-    ];
-
-    brews = [
-      "gnupg"
     ];
   };
 
