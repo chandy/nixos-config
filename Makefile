@@ -1,7 +1,7 @@
 # Connectivity info for Linux VM
 NIXADDR ?= unset
 NIXPORT ?= 22
-NIXUSER ?= mitchellh
+NIXUSER ?= chandy
 
 # Get the path to this Makefile and directory
 MAKEFILE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
@@ -18,7 +18,7 @@ UNAME := $(shell uname)
 
 switch:
 ifeq ($(UNAME), Darwin)
-	NIXPKGS_ALLOW_UNFREE=1 nix build --impure --extra-experimental-features nix-command --extra-experimental-features flakes ".#darwinConfigurations.${NIXNAME}.system"
+	NIXPKGS_ALLOW_UNFREE=1 nix build --impure --extra-experimental-features nix-command --extra-experimental-features flakes ".#darwinConfigurations.${NIXNAME}.system" --show-trace
 	sudo NIXPKGS_ALLOW_UNFREE=1 ./result/sw/bin/darwin-rebuild switch --impure --flake "$$(pwd)#${NIXNAME}"
 else
 	sudo NIXPKGS_ALLOW_UNFREE=1 NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --impure --flake ".#${NIXNAME}"
@@ -39,32 +39,6 @@ cache:
 	nix build '.#nixosConfigurations.$(NIXNAME).config.system.build.toplevel' --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push mitchellh-nixos-config
-
-# Backup secrets so that we can transer them to new machines via
-# sneakernet or other means.
-.PHONY: secrets/backup
-secrets/backup:
-	tar -czvf $(MAKEFILE_DIR)/backup.tar.gz \
-		-C $(HOME) \
-		--exclude='.gnupg/.#*' \
-		--exclude='.gnupg/S.*' \
-		--exclude='.gnupg/*.conf' \
-		--exclude='.ssh/environment' \
-		.ssh/ \
-		.gnupg
-
-.PHONY: secrets/restore
-secrets/restore:
-	if [ ! -f $(MAKEFILE_DIR)/backup.tar.gz ]; then \
-		echo "Error: backup.tar.gz not found in $(MAKEFILE_DIR)"; \
-		exit 1; \
-	fi
-	echo "Restoring SSH keys and GPG keyring from backup..."
-	mkdir -p $(HOME)/.ssh $(HOME)/.gnupg
-	tar -xzvf $(MAKEFILE_DIR)/backup.tar.gz -C $(HOME)
-	chmod 700 $(HOME)/.ssh $(HOME)/.gnupg
-	chmod 600 $(HOME)/.ssh/* || true
-	chmod 700 $(HOME)/.gnupg/* || true
 
 # bootstrap a brand new VM. The VM should have NixOS ISO on the CD drive
 # and just set the password of the root user to "root". This will install
