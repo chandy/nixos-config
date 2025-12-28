@@ -73,7 +73,7 @@ in {
     pkgs.sentry-cli
     pkgs.tree
     pkgs.watch
-    pkgs.starship
+    # pkgs.starship - included by programs.starship
 
     pkgs.gopls
     pkgs.zigpkgs."0.14.0"
