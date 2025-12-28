@@ -127,10 +127,9 @@ in {
     DISPLAY = "nixpkgs-390751";
   } else {});
 
-  home.file = {
-    ".gdbinit".source = ./gdbinit;
-    ".inputrc".source = ./inputrc;
-  };
+  # Simple dotfiles now managed by chezmoi
+  # See: ~/.gdbinit, ~/.inputrc, ~/.Xresources
+  # home.file = {};
 
   # xdg.configFile = {
   #   "i3/config".text = builtins.readFile ./i3;
@@ -272,7 +271,8 @@ in {
     maxCacheTtl = 31536000;
   };
 
-  xresources.extraConfig = builtins.readFile ./Xresources;
+  # Xresources now managed by chezmoi
+  # See: ~/.Xresources
 
   # Make cursor not tiny on HiDPI screens
   home.pointerCursor = lib.mkIf (isLinux && !isWSL) {
